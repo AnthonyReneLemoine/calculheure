@@ -386,148 +386,47 @@
   }
   #toast.show { opacity: 1; }
 
-  /* ONGLETS */
-  .tabs {
+  /* RELIQUAT INLINE */
+  .reliquat-inline {
     display: flex;
-    gap: 4px;
-    margin-bottom: 0;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0;
-    margin-bottom: 24px;
-  }
-  .tab-btn {
-    font-family: var(--sans);
-    font-size: 0.82rem;
-    font-weight: 600;
-    padding: 9px 18px;
-    border-radius: 8px 8px 0 0;
-    border: 1px solid transparent;
-    border-bottom: none;
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    position: relative;
-    bottom: -1px;
-    transition: color .15s, background .15s;
-    letter-spacing: .02em;
-  }
-  .tab-btn:hover { color: var(--text); }
-  .tab-btn.active {
-    background: var(--surface);
-    border-color: var(--border);
-    color: var(--accent);
-  }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* RELIQUAT */
-  .reliquat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px 24px;
-    margin-bottom: 20px;
-  }
-  .reliquat-card h2 {
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .reliquat-card .rq-desc {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
-  .reliquat-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
-  .rq-row {
-    display: grid;
-    grid-template-columns: 1fr 110px 110px auto auto;
-    gap: 8px;
     align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
   }
-  .rq-row input[type=text], .rq-row input[type=number], .rq-row input[type=date] {
+  .reliquat-inline label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 600;
+  }
+  .reliquat-inline input[type=text] {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 7px;
     color: var(--text);
     font-family: var(--mono);
-    font-size: 0.82rem;
-    padding: 7px 10px;
-    width: 100%;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 6px 12px;
+    width: 90px;
     outline: none;
     transition: border-color .15s;
+    text-align: center;
   }
-  .rq-row input:focus { border-color: var(--accent); }
-  .rq-row input[type=number] { text-align: right; }
-  .rq-toggle-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.72rem;
+  .reliquat-inline input[type=text]:focus { border-color: var(--green); }
+  .reliquat-inline .rq-hint {
+    font-size: 0.7rem;
     color: var(--muted);
-    cursor: pointer;
-    user-select: none;
-    white-space: nowrap;
+    font-family: var(--mono);
   }
-  .rq-del {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--accent2);
-    border-radius: 6px;
-    width: 28px; height: 28px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background .15s;
-  }
-  .rq-del:hover { background: rgba(255,101,132,.15); }
-  .add-rq-btn {
-    background: none;
-    border: 1px dashed var(--border);
-    color: var(--muted);
-    border-radius: 7px;
-    width: 100%;
-    padding: 7px;
-    cursor: pointer;
-    font-size: 0.78rem;
-    font-family: var(--sans);
-    transition: border-color .15s, color .15s;
-  }
-  .add-rq-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .rq-total-row {
-    display: flex;
-    gap: 24px;
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .rq-stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; margin-bottom: 3px; }
-  .rq-stat-val { font-family: var(--mono); font-size: 1.3rem; font-weight: 500; }
-  .rq-info-box {
-    margin-top: 16px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.7;
-  }
-  .rq-info-box strong { color: var(--text); }
-  .rq-badge-possible { background: rgba(16,185,129,.15); color: var(--green); }
-  .rq-badge-blocked  { background: rgba(239,68,68,.15);  color: var(--holiday); }
+  .reliquat-inline .toggle-switch { flex-shrink: 0; }
 
   @media print {
     body { background: #fff; color: #111; padding: 0; }
     .toolbar, .week-nav, .no-print { display: none !important; }
-    .tabs.no-print { display: none !important; }
-    .tab-panel { display: block !important; }
     .day-card { break-inside: avoid; border-color: #ccc; }
-    .summary-card, .reliquat-card { border-color: #ccc; }
+    .summary-card { border-color: #ccc; }
   }
 </style>
 </head>
@@ -536,7 +435,7 @@
 <header>
   <div class="logo-block">
     <h1>Pointage <span>Hermine</span></h1>
-    <div class="ver">v1.4.0 — Calcul heures 34,5h/sem.</div>
+    <div class="ver">v1.5.0 — Calcul heures 34,5h/sem.</div>
   </div>
   <div class="week-nav">
     <button id="prevWeek" title="Semaine précédente">‹</button>
@@ -556,13 +455,6 @@
   <button class="btn btn-green" onclick="exportPDF()">📄 Export PDF</button>
   <button class="btn btn-danger" onclick="clearWeek()">🗑 Effacer semaine</button>
 </div>
-
-<div class="tabs no-print">
-  <button class="tab-btn active" onclick="switchTab('semaine')">📅 Semaine</button>
-  <button class="tab-btn" onclick="switchTab('reliquat')">⏱ Reliquat</button>
-</div>
-
-<div id="tab-semaine" class="tab-panel active">
 
 <div id="daysGrid" class="days-grid"></div>
 
@@ -585,9 +477,19 @@
       <div class="stat-sub">34h30 contractuelles</div>
     </div>
     <div class="stat-block">
-      <div class="stat-label">Reliquat intégré</div>
-      <div class="stat-value" id="s-reliquat" style="color:var(--green)">+0:00</div>
-      <div class="stat-sub">heures récupérables actives</div>
+      <div class="stat-label">Reliquat</div>
+      <div style="margin-top:4px">
+        <div class="reliquat-inline">
+          <input type="text" id="rq-input" placeholder="0:00" value=""
+            oninput="updateReliquatInline(this.value)"
+            title="Saisir un reliquat H:MM, ex: 1:30">
+          <label class="day-toggle" style="cursor:pointer" onclick="toggleReliquatActive()">
+            <div class="toggle-switch" id="rq-toggle"></div>
+            <span id="rq-toggle-label" style="font-size:.72rem;color:var(--muted)">Inactif</span>
+          </label>
+        </div>
+        <div class="rq-hint" style="margin-top:4px;font-size:.68rem;color:var(--muted);font-family:var(--mono)">format H:MM · activer pour intégrer</div>
+      </div>
     </div>
     <div class="stat-block">
       <div class="stat-label">Solde final</div>
@@ -622,158 +524,71 @@
   <textarea id="weekNote" placeholder="Observations, congés, absences…" oninput="autoSave()"></textarea>
 </div>
 
-</div><!-- /tab-semaine -->
-
-<div id="tab-reliquat" class="tab-panel">
-
-<div class="reliquat-card">
-  <h2>Reliquat d'heures</h2>
-  <p class="rq-desc">Saisis ici les heures accumulées en surplus sur des semaines passées. Tu peux activer ou non leur prise en compte dans le calcul de la semaine en cours — selon si la récupération est réellement possible compte tenu de tes contraintes de poste (prise de poste obligatoire à 17h mar/jeu/ven et 14h mer).</p>
-
-  <div class="reliquat-list" id="rqList"></div>
-  <button class="add-rq-btn" onclick="addReliquat()">+ Ajouter un reliquat</button>
-
-  <div class="rq-total-row">
-    <div class="rq-stat">
-      <div class="rq-stat-label">Total reliquat</div>
-      <div class="rq-stat-val" id="rq-total" style="color:var(--text)">0:00</div>
-    </div>
-    <div class="rq-stat">
-      <div class="rq-stat-label">Récupérable (actif)</div>
-      <div class="rq-stat-val" id="rq-active" style="color:var(--green)">0:00</div>
-    </div>
-    <div class="rq-stat">
-      <div class="rq-stat-label">Non récupérable</div>
-      <div class="rq-stat-val" id="rq-inactive" style="color:var(--muted)">0:00</div>
-    </div>
-  </div>
-
-  <div class="rq-info-box">
-    <strong>Contraintes de prise de poste</strong><br>
-    Mardi, Jeudi, Vendredi : prise de poste au plus tôt à <strong>17h00</strong><br>
-    Mercredi : prise de poste au plus tôt à <strong>14h00</strong><br>
-    <br>
-    Les reliquats marqués <span class="badge rq-badge-possible">✓ Récupérable</span> sont ajoutés au total comptabilisé de la semaine en cours.<br>
-    Les reliquats <span class="badge rq-badge-blocked">✗ Non récupérable</span> sont conservés en mémoire mais n'entrent pas dans le calcul.
-  </div>
-</div>
-
-</div><!-- /tab-reliquat -->
-
 <div id="toast"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
-// ONGLETS
+// RELIQUAT INLINE
 // ═══════════════════════════════════════════════════════════
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach((b,i) => {
-    b.classList.toggle('active', b.getAttribute('onclick').includes(name));
-  });
-  document.querySelectorAll('.tab-panel').forEach(p => {
-    p.classList.toggle('active', p.id === 'tab-'+name);
-  });
-}
-
-// ═══════════════════════════════════════════════════════════
-// RELIQUAT
-// ═══════════════════════════════════════════════════════════
-// reliquats = tableau global persisté dans localStorage (clé séparée)
-// structure : [{ id, label, dateFrom, minutes, active }]
-let reliquats = [];
+let reliquatState = { raw: '', minutes: 0, active: false };
 
 function loadReliquats() {
   try {
     const s = localStorage.getItem('pointage_hermine_reliquats');
-    if(s) reliquats = JSON.parse(s);
+    if(s) reliquatState = JSON.parse(s);
   } catch{}
 }
 function saveReliquats() {
-  localStorage.setItem('pointage_hermine_reliquats', JSON.stringify(reliquats));
+  localStorage.setItem('pointage_hermine_reliquats', JSON.stringify(reliquatState));
+}
+
+function parseReliquatInput(val) {
+  // accepte H:MM ou HhMM ou nombre décimal
+  val = val.trim();
+  if(!val) return 0;
+  const m1 = val.match(/^(\d+):(\d{1,2})$/);
+  if(m1) return parseInt(m1[1])*60 + parseInt(m1[2]);
+  const m2 = val.match(/^(\d+)[hH](\d{0,2})$/);
+  if(m2) return parseInt(m2[1])*60 + (parseInt(m2[2])||0);
+  const n = parseFloat(val.replace(',','.'));
+  if(!isNaN(n)) return Math.round(n*60);
+  return 0;
+}
+
+function updateReliquatInline(val) {
+  reliquatState.raw = val;
+  reliquatState.minutes = parseReliquatInput(val);
+  saveReliquats();
+  renderReliquatUI();
+  render();
+}
+
+function toggleReliquatActive() {
+  reliquatState.active = !reliquatState.active;
+  saveReliquats();
+  renderReliquatUI();
+  render();
 }
 
 function getActiveReliquatMin() {
-  return reliquats.filter(r => r.active).reduce((sum, r) => sum + (r.minutes||0), 0);
+  return reliquatState.active ? (reliquatState.minutes||0) : 0;
 }
 
-function addReliquat() {
-  reliquats.push({
-    id: Date.now(),
-    label: '',
-    dateFrom: '',
-    minutes: 0,
-    active: true
-  });
-  saveReliquats();
-  renderReliquat();
-}
-
-function removeReliquat(id) {
-  reliquats = reliquats.filter(r => r.id !== id);
-  saveReliquats();
-  renderReliquat();
-  render(); // recalcul solde
-}
-
-function updateReliquat(id, field, val) {
-  const r = reliquats.find(x => x.id === id);
-  if(!r) return;
-  if(field === 'minutes') {
-    // val = "HH:MM" format
-    const parts = val.split(':');
-    const h = parseInt(parts[0])||0;
-    const m = parseInt(parts[1])||0;
-    r.minutes = h*60 + m;
-  } else if(field === 'active') {
-    r.active = val;
-  } else {
-    r[field] = val;
+function renderReliquatUI() {
+  const inp = document.getElementById('rq-input');
+  const tog = document.getElementById('rq-toggle');
+  const lbl = document.getElementById('rq-toggle-label');
+  if(!inp) return;
+  inp.value = reliquatState.raw || '';
+  if(tog) {
+    tog.className = 'toggle-switch' + (reliquatState.active ? ' on' : '');
   }
-  saveReliquats();
-  renderReliquat();
-  render(); // recalcul solde
+  if(lbl) {
+    lbl.textContent = reliquatState.active ? 'Intégré' : 'Inactif';
+    lbl.style.color = reliquatState.active ? 'var(--green)' : 'var(--muted)';
+  }
 }
 
-function minToInput(m) {
-  const h = Math.floor(Math.abs(m)/60);
-  const mn = Math.abs(m)%60;
-  return h+':'+String(mn).padStart(2,'0');
-}
-
-function renderReliquat() {
-  const list = document.getElementById('rqList');
-  if(!list) return;
-
-  let totalAll = 0, totalActive = 0, totalInactive = 0;
-
-  list.innerHTML = reliquats.map(r => {
-    totalAll += r.minutes||0;
-    if(r.active) totalActive += r.minutes||0;
-    else totalInactive += r.minutes||0;
-
-    const activeLabel = r.active ? '✓ Récupérable' : '✗ Bloqué';
-    const activeCls = r.active ? 'rq-badge-possible' : 'rq-badge-blocked';
-
-    return `
-    <div class="rq-row">
-      <input type="text" placeholder="Libellé (ex: Sem. 14 – spectacle)" value="${r.label||''}"
-        oninput="updateReliquat(${r.id},'label',this.value)">
-      <input type="date" value="${r.dateFrom||''}"
-        oninput="updateReliquat(${r.id},'dateFrom',this.value)" title="Semaine de provenance">
-      <input type="text" placeholder="H:MM" value="${r.minutes ? minToInput(r.minutes) : ''}"
-        oninput="updateReliquat(${r.id},'minutes',this.value)" title="Ex: 1:30 pour 1h30">
-      <label class="rq-toggle-wrap" title="Inclure dans le calcul de la semaine">
-        <div class="toggle-switch ${r.active ? 'on' : ''}" onclick="updateReliquat(${r.id},'active',${!r.active})"></div>
-        <span class="badge ${activeCls}">${activeLabel}</span>
-      </label>
-      <button class="rq-del" onclick="removeReliquat(${r.id})" title="Supprimer">✕</button>
-    </div>`;
-  }).join('');
-
-  document.getElementById('rq-total').textContent   = minToHHMM(totalAll);
-  document.getElementById('rq-active').textContent  = minToHHMM(totalActive);
-  document.getElementById('rq-inactive').textContent= minToHHMM(totalInactive);
-}
 
 
 function getEaster(year) {
@@ -1031,7 +846,6 @@ function render() {
   const reliquatMin = getActiveReliquatMin();
   document.getElementById('s-real').textContent = minToHHMM(totalReal);
   document.getElementById('s-counted').textContent = minToHHMM(Math.round(totalCounted));
-  document.getElementById('s-reliquat').textContent = reliquatMin > 0 ? '+' + minToHHMM(reliquatMin) : minToHHMM(reliquatMin);
   document.getElementById('s-night').textContent = minToHHMM(totalNight);
   document.getElementById('s-sunday').textContent = minToHHMM(totalSunday);
 
@@ -1047,7 +861,7 @@ function render() {
   pb.style.width = pct + '%';
   pb.className = 'progress-bar' + (pct >= 100 ? ' over' : '');
 
-  renderReliquat();
+  renderReliquatUI();
 }
 
 function renderSlot(wk, dk, si, slot, isSunday, isHoliday) {
@@ -1074,7 +888,10 @@ function toggleDay(wk, dk) {
   if(!weekData[wk].days[dk]) weekData[wk].days[dk] = { active:false, slots:[] };
   weekData[wk].days[dk].active = !weekData[wk].days[dk].active;
   if(weekData[wk].days[dk].active && weekData[wk].days[dk].slots.length === 0) {
-    weekData[wk].days[dk].slots.push({ start:'', end:'' });
+    // Préremplissage selon le jour : mercredi (getDay()===3) → 14:00, sinon vide
+    const dayOfWeek = new Date(dk).getDay();
+    const defaultStart = dayOfWeek === 3 ? '14:00' : '';
+    weekData[wk].days[dk].slots.push({ start: defaultStart, end: '' });
   }
   autoSave(); render();
 }
@@ -1126,7 +943,7 @@ function clearWeek() {
 
 function exportJSON() {
   autoSave();
-  const payload = { weekData, reliquats };
+  const payload = { weekData, reliquatState };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1142,11 +959,11 @@ function importJSON(ev) {
   reader.onload = e => {
     try {
       const imported = JSON.parse(e.target.result);
-      // support ancien format (weekData seul) et nouveau format ({weekData, reliquats})
       if(imported.weekData) {
         Object.assign(weekData, imported.weekData);
-        if(Array.isArray(imported.reliquats)) reliquats = imported.reliquats;
+        if(imported.reliquatState) reliquatState = imported.reliquatState;
       } else {
+        // ancien format (weekData seul)
         Object.assign(weekData, imported);
       }
       localStorage.setItem('pointage_hermine', JSON.stringify(weekData));
