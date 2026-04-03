@@ -891,7 +891,8 @@ function updateSlot(wk, dk, si, field, val) {
 function autoSave() {
   const wk = weekKey(currentMonday);
   if(!weekData[wk]) weekData[wk] = { days:{}, note:'' };
-  weekData[wk].note = document.getElementById('weekNote').value;
+  const noteEl = document.getElementById('weekNote');
+  if(noteEl) weekData[wk].note = noteEl.value;
   localStorage.setItem('pointage_hermine', JSON.stringify(weekData));
 }
 
