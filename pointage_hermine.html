@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointage Hermine – Calcul Heures</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f0f13;
+    --surface: #18181f;
+    --surface2: #22222d;
+    --border: #2e2e3d;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --night: #3b82f6;
+    --sunday: #f59e0b;
+    --holiday: #ef4444;
+    --green: #10b981;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --mono: 'DM Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .logo-block h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  .logo-block h1 span { color: var(--accent); }
+  .logo-block .ver {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .week-nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background .15s;
+  }
+  .week-nav button:hover { background: var(--border); }
+  .week-label {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .btn {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    letter-spacing: .02em;
+  }
+  .btn:hover { opacity: .85; transform: translateY(-1px); }
+  .btn-accent  { background: var(--accent);  color: #fff; }
+  .btn-night   { background: var(--night);   color: #fff; }
+  .btn-green   { background: var(--green);   color: #fff; }
+  .btn-danger  { background: var(--accent2); color: #fff; }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* DAY CARDS */
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .day-card.is-sunday  { border-color: rgba(245,158,11,.4); }
+  .day-card.is-holiday { border-color: rgba(239,68,68,.4); }
+  .day-card.is-today   { border-color: var(--accent); }
+  .day-card.is-off { opacity: .55; }
+
+  .day-header {
+    padding: 12px 16px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .badge-sun  { background: rgba(245,158,11,.18); color: var(--sunday); }
+  .badge-hol  { background: rgba(239,68,68,.18);  color: var(--holiday);}
+  .badge-today{ background: rgba(108,99,255,.2);  color: var(--accent); }
+
+  .day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-switch {
+    width: 34px; height: 18px;
+    background: var(--border);
+    border-radius: 9px;
+    position: relative;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--accent); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left .2s;
+  }
+  .toggle-switch.on::after { left: 18px; }
+
+  .day-body { padding: 14px 16px; }
+
+  .slots-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .slot-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+  }
+  .slot-row input[type=time] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    padding: 6px 8px;
+    width: 100%;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .slot-row input[type=time]:focus { border-color: var(--accent); }
+  .slot-info {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .slot-del {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: background .15s;
+  }
+  .slot-del:hover { background: rgba(255,101,132,.15); }
+
+  .add-slot-btn {
+    margin-top: 8px;
+    background: none;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    width: 100%;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-family: var(--sans);
+    transition: border-color .15s, color .15s;
+  }
+  .add-slot-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .day-footer {
+    padding: 8px 16px 12px;
+    display: flex;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .day-footer span { display: flex; align-items: center; gap: 4px; }
+  .night-dot { width:7px;height:7px;border-radius:50%;background:var(--night);display:inline-block; }
+  .sun-dot   { width:7px;height:7px;border-radius:50%;background:var(--sunday);display:inline-block; }
+  .val { color: var(--text); font-weight: 500; }
+
+  /* SUMMARY */
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .summary-card h2 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 14px;
+  }
+  .stat-block { }
+  .stat-label {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.over   { color: var(--green); }
+  .stat-value.under  { color: var(--accent2); }
+  .stat-value.neutral{ color: var(--text); }
+  .stat-sub {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .progress-bar-wrap {
+    margin-top: 16px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width .4s;
+  }
+  .progress-bar.over { background: var(--green); }
+
+  /* NIGHT LEGEND */
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    flex-wrap: wrap;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .legend-item { display:flex;align-items:center;gap:5px; }
+
+  /* NOTE */
+  .note-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .note-area h2 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .note-area textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+  }
+  .note-area textarea:focus { border-color: var(--accent); }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-family: var(--mono);
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; }
+    .toolbar, .week-nav, .no-print { display: none !important; }
+    .day-card { break-inside: avoid; border-color: #ccc; }
+    .summary-card { border-color: #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <h1>Pointage <span>Hermine</span></h1>
+    <div class="ver">v1.2.0 — Calcul heures 34,5h/sem.</div>
+  </div>
+  <div class="week-nav">
+    <button id="prevWeek" title="Semaine précédente">‹</button>
+    <span class="week-label" id="weekLabel">–</span>
+    <button id="nextWeek" title="Semaine suivante">›</button>
+    <button id="todayBtn" title="Semaine en cours" style="font-size:.75rem;width:auto;padding:0 12px;font-family:var(--sans)">Auj.</button>
+  </div>
+</header>
+
+<div class="toolbar no-print">
+  <button class="btn btn-accent" onclick="saveData()">💾 Sauvegarder</button>
+  <button class="btn btn-night" onclick="exportJSON()">⬇ Exporter JSON</button>
+  <label class="btn btn-outline" style="cursor:pointer">
+    ⬆ Importer JSON
+    <input type="file" accept=".json" style="display:none" onchange="importJSON(event)">
+  </label>
+  <button class="btn btn-green" onclick="exportPDF()">📄 Export PDF</button>
+  <button class="btn btn-danger" onclick="clearWeek()">🗑 Effacer semaine</button>
+</div>
+
+<div id="daysGrid" class="days-grid"></div>
+
+<div class="summary-card">
+  <h2>Récapitulatif de la semaine</h2>
+  <div class="summary-grid">
+    <div class="stat-block">
+      <div class="stat-label">Heures réelles</div>
+      <div class="stat-value accent" id="s-real">0:00</div>
+      <div class="stat-sub">temps de présence</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Heures comptabilisées</div>
+      <div class="stat-value" id="s-counted" style="color:var(--text)">0:00</div>
+      <div class="stat-sub">avec majorations</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Quota semaine</div>
+      <div class="stat-value neutral">34:30</div>
+      <div class="stat-sub">34h30 contractuelles</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Solde</div>
+      <div class="stat-value" id="s-balance">+0:00</div>
+      <div class="stat-sub" id="s-balance-sub">heures sup. / manquantes</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Dont nuit (×2)</div>
+      <div class="stat-value" id="s-night" style="color:var(--night);font-size:1.1rem">0:00</div>
+      <div class="stat-sub">heures après 22h</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-label">Dont dimanche (×1.666)</div>
+      <div class="stat-value" id="s-sunday" style="color:var(--sunday);font-size:1.1rem">0:00</div>
+      <div class="stat-sub">heures dim. travaillées</div>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="night-dot"></span> heures de nuit (après 22h) : ×2</div>
+    <div class="legend-item"><span class="sun-dot"></span> heures dimanche : ×1,666</div>
+    <div class="legend-item" style="color:var(--holiday)">🔴 jours fériés : ×2</div>
+    <div class="legend-item" style="color:var(--muted)">quota : 34h30/semaine</div>
+  </div>
+</div>
+
+<div class="note-area">
+  <h2>Notes de la semaine</h2>
+  <textarea id="weekNote" placeholder="Observations, congés, absences…" oninput="autoSave()"></textarea>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// JOURS FÉRIÉS FRANCE (règle de Butcher + Pâques)
+// ═══════════════════════════════════════════════════════════
+function getEaster(year) {
+  const a=year%19,b=Math.floor(year/100),c=year%100;
+  const d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25);
+  const g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30;
+  const i=Math.floor(c/4),k=c%4;
+  const l=(32+2*e+2*i-h-k)%7;
+  const m=Math.floor((a+11*h+22*l)/451);
+  const month=Math.floor((h+l-7*m+114)/31);
+  const day=((h+l-7*m+114)%31)+1;
+  return new Date(year, month-1, day);
+}
+
+function getFrenchHolidays(year) {
+  const e = getEaster(year);
+  const add = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+  const k = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const hols = {
+    [k(new Date(year,0,1))]:  "Jour de l'An",
+    [k(add(e,1))]:             "Lundi de Pâques",
+    [k(new Date(year,4,1))]:  "Fête du Travail",
+    [k(new Date(year,4,8))]:  "Victoire 1945",
+    [k(add(e,39))]:            "Ascension",
+    [k(add(e,50))]:            "Lundi de Pentecôte",
+    [k(new Date(year,6,14))]: "Fête Nationale",
+    [k(new Date(year,7,15))]: "Assomption",
+    [k(new Date(year,10,1))]: "Toussaint",
+    [k(new Date(year,10,11))]:"Armistice",
+    [k(new Date(year,11,25))]:"Noël",
+  };
+  return hols;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ÉTAT
+// ═══════════════════════════════════════════════════════════
+const QUOTA = 34.5; // heures
+let currentMonday = getThisMonday();
+let weekData = {}; // keyed by "YYYY-WW"
+
+function getThisMonday() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function weekKey(monday) {
+  const d = new Date(monday);
+  const jan4 = new Date(d.getFullYear(), 0, 4);
+  const startOfWeek1 = new Date(jan4);
+  startOfWeek1.setDate(jan4.getDate() - (jan4.getDay() || 7) + 1);
+  const weekNum = Math.floor((d - startOfWeek1) / (7 * 86400000)) + 1;
+  return `${d.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+}
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getWeekDays(monday) {
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// CALCUL HEURES
+// ═══════════════════════════════════════════════════════════
+function timeToMin(t) {
+  if(!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  return h*60+m;
+}
+function minToHHMM(m) {
+  const neg = m < 0;
+  const abs = Math.abs(m);
+  const h = Math.floor(abs/60);
+  const mn = Math.round(abs%60);
+  return (neg?'-':'')+h+':'+String(mn).padStart(2,'0');
+}
+
+function calcSlot(startStr, endStr, isSunday, isHoliday) {
+  const s = timeToMin(startStr);
+  let e = timeToMin(endStr);
+  if(s===null || e===null) return null;
+  if(e < s) e += 24*60; // passe minuit
+
+  let realMin = e - s;
+  let countedMin = 0;
+
+  // coeff de base
+  let baseCoeff = 1;
+  if(isSunday) baseCoeff = 1.666;
+  if(isHoliday) baseCoeff = 2;
+
+  // découper par tranche : avant 22h et après 22h
+  const night22 = 22*60; // 22h00
+  const end24 = 24*60;   // minuit
+
+  // Segments : [start,end] coupés autour de 22h
+  // cas simple : tout avant 22h
+  // cas nuit : une partie avant 22h, une après
+
+  let dayMin = 0;   // minutes avant 22h
+  let nightMin = 0; // minutes à partir 22h
+
+  if(s >= night22) {
+    // tout en nuit
+    nightMin = realMin;
+  } else if(e <= night22) {
+    // tout en jour
+    dayMin = realMin;
+  } else {
+    // mixte
+    dayMin = night22 - s;
+    nightMin = e - night22;
+  }
+
+  // Les heures de nuit comptent ×2 (prioritaire sur dimanche/férié)
+  // Pour simplifier : nuit = ×2 toujours, jour = ×baseCoeff
+  countedMin = dayMin * baseCoeff + nightMin * 2;
+
+  return { realMin, countedMin, nightMin, dayMin };
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDU
+// ═══════════════════════════════════════════════════════════
+const DAY_NAMES = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+const MONTHS = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+function render() {
+  const days = getWeekDays(currentMonday);
+  const wk = weekKey(currentMonday);
+  const holidays = {
+    ...getFrenchHolidays(currentMonday.getFullYear()),
+    ...getFrenchHolidays(currentMonday.getFullYear()+1),
+  };
+
+  // init week data if needed
+  if(!weekData[wk]) weekData[wk] = { days:{}, note:'' };
+  const wd = weekData[wk];
+
+  // week label
+  const endDay = days[6];
+  document.getElementById('weekLabel').textContent =
+    `${days[0].getDate()} ${MONTHS[days[0].getMonth()]} – ${endDay.getDate()} ${MONTHS[endDay.getMonth()]} ${endDay.getFullYear()} · S${wk.split('-W')[1]}`;
+
+  const today = dateKey(new Date());
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = '';
+
+  let totalReal=0, totalCounted=0, totalNight=0, totalSunday=0;
+
+  days.forEach((d,idx) => {
+    const dk = dateKey(d);
+    const isSunday = idx === 6;
+    const isHoliday = !!holidays[dk];
+    const isToday = dk === today;
+    const dayName = isHoliday ? holidays[dk] : DAY_NAMES[idx];
+
+    if(!wd.days[dk]) wd.days[dk] = { active: false, slots: [] };
+    const dd = wd.days[dk];
+
+    // compute day totals
+    let dayReal=0, dayCounted=0, dayNight=0;
+    dd.slots.forEach(slot => {
+      const r = calcSlot(slot.start, slot.end, isSunday, isHoliday);
+      if(r) {
+        dayReal += r.realMin;
+        dayCounted += r.countedMin;
+        dayNight += r.nightMin;
+      }
+    });
+    if(isSunday) totalSunday += dayReal;
+    totalReal += dayReal;
+    totalCounted += dayCounted;
+    totalNight += dayNight;
+
+    // build card
+    const card = document.createElement('div');
+    card.className = 'day-card'
+      + (isSunday ? ' is-sunday' : '')
+      + (isHoliday ? ' is-holiday' : '')
+      + (isToday ? ' is-today' : '')
+      + (!dd.active ? ' is-off' : '');
+
+    const badges = [];
+    if(isToday) badges.push(`<span class="badge badge-today">Aujourd'hui</span>`);
+    if(isSunday) badges.push(`<span class="badge badge-sun">Dimanche</span>`);
+    if(isHoliday) badges.push(`<span class="badge badge-hol">Férié</span>`);
+
+    card.innerHTML = `
+      <div class="day-header">
+        <div class="day-name">
+          ${DAY_NAMES[idx]}
+          <span style="color:var(--muted);font-weight:400;font-size:.8rem">${d.getDate()} ${MONTHS[d.getMonth()]}</span>
+          ${badges.join('')}
+        </div>
+        <label class="day-toggle" onclick="toggleDay('${wk}','${dk}')">
+          <div class="toggle-switch ${dd.active ? 'on' : ''}"></div>
+          <span>${dd.active ? 'Travaillé' : 'Repos'}</span>
+        </label>
+      </div>
+      ${dd.active ? `
+      <div class="day-body">
+        <div class="slots-list" id="slots-${dk}">
+          ${dd.slots.map((s,si) => renderSlot(wk,dk,si,s,isSunday,isHoliday)).join('')}
+        </div>
+        <button class="add-slot-btn" onclick="addSlot('${wk}','${dk}')">+ Ajouter une plage horaire</button>
+      </div>
+      <div class="day-footer">
+        <span>Réel : <span class="val">${minToHHMM(dayReal)}</span></span>
+        <span>Compté : <span class="val" style="color:var(--accent)">${minToHHMM(Math.round(dayCounted))}</span></span>
+        ${dayNight > 0 ? `<span><span class="night-dot"></span> Nuit : <span class="val" style="color:var(--night)">${minToHHMM(dayNight)}</span></span>` : ''}
+        ${isHoliday ? `<span style="color:var(--holiday)">×2 férié</span>` : ''}
+        ${isSunday && dayReal>0 ? `<span style="color:var(--sunday)">×1,666</span>` : ''}
+      </div>
+      ` : ''}
+    `;
+    grid.appendChild(card);
+  });
+
+  // note
+  document.getElementById('weekNote').value = wd.note || '';
+
+  // summary
+  document.getElementById('s-real').textContent = minToHHMM(totalReal);
+  document.getElementById('s-counted').textContent = minToHHMM(Math.round(totalCounted));
+  document.getElementById('s-night').textContent = minToHHMM(totalNight);
+  document.getElementById('s-sunday').textContent = minToHHMM(totalSunday);
+
+  const quotaMin = QUOTA * 60;
+  const balance = Math.round(totalCounted) - quotaMin;
+  const balEl = document.getElementById('s-balance');
+  balEl.textContent = (balance >= 0 ? '+' : '') + minToHHMM(balance);
+  balEl.className = 'stat-value ' + (balance > 0 ? 'over' : balance < 0 ? 'under' : 'neutral');
+  document.getElementById('s-balance-sub').textContent = balance >= 0 ? 'heures supplémentaires' : 'heures manquantes';
+
+  const pct = Math.min(100, Math.round(totalCounted / quotaMin * 100));
+  const pb = document.getElementById('progressBar');
+  pb.style.width = pct + '%';
+  pb.className = 'progress-bar' + (pct >= 100 ? ' over' : '');
+}
+
+function renderSlot(wk, dk, si, slot, isSunday, isHoliday) {
+  const r = calcSlot(slot.start, slot.end, isSunday, isHoliday);
+  let info = '';
+  if(r && r.realMin > 0) {
+    info = `${minToHHMM(r.realMin)} → ${minToHHMM(Math.round(r.countedMin))}`;
+    if(r.nightMin > 0) info += ` 🌙${minToHHMM(r.nightMin)}`;
+  }
+  return `
+    <div class="slot-row">
+      <input type="time" value="${slot.start||''}" oninput="updateSlot('${wk}','${dk}',${si},'start',this.value)" placeholder="Début">
+      <input type="time" value="${slot.end||''}" oninput="updateSlot('${wk}','${dk}',${si},'end',this.value)" placeholder="Fin">
+      <span class="slot-info">${info}</span>
+      <button class="slot-del" onclick="removeSlot('${wk}','${dk}',${si})" title="Supprimer">✕</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════
+function toggleDay(wk, dk) {
+  if(!weekData[wk]) weekData[wk] = { days:{}, note:'' };
+  if(!weekData[wk].days[dk]) weekData[wk].days[dk] = { active:false, slots:[] };
+  weekData[wk].days[dk].active = !weekData[wk].days[dk].active;
+  if(weekData[wk].days[dk].active && weekData[wk].days[dk].slots.length === 0) {
+    weekData[wk].days[dk].slots.push({ start:'', end:'' });
+  }
+  autoSave(); render();
+}
+
+function addSlot(wk, dk) {
+  weekData[wk].days[dk].slots.push({ start:'', end:'' });
+  autoSave(); render();
+}
+
+function removeSlot(wk, dk, si) {
+  weekData[wk].days[dk].slots.splice(si, 1);
+  autoSave(); render();
+}
+
+function updateSlot(wk, dk, si, field, val) {
+  weekData[wk].days[dk].slots[si][field] = val;
+  autoSave();
+  // rerender just footer + slot info
+  const r = calcSlot(
+    weekData[wk].days[dk].slots[si].start,
+    weekData[wk].days[dk].slots[si].end,
+    new Date(dk).getDay()===0,
+    !!getFrenchHolidays(new Date(dk).getFullYear())[dk]
+  );
+  // full re-render for simplicity (cheap)
+  render();
+}
+
+function autoSave() {
+  const wk = weekKey(currentMonday);
+  if(!weekData[wk]) weekData[wk] = { days:{}, note:'' };
+  weekData[wk].note = document.getElementById('weekNote').value;
+  localStorage.setItem('pointage_hermine', JSON.stringify(weekData));
+}
+
+function saveData() {
+  autoSave();
+  toast('✅ Sauvegardé dans le navigateur');
+}
+
+function clearWeek() {
+  if(!confirm('Effacer toutes les données de cette semaine ?')) return;
+  const wk = weekKey(currentMonday);
+  delete weekData[wk];
+  localStorage.setItem('pointage_hermine', JSON.stringify(weekData));
+  render();
+  toast('🗑 Semaine effacée');
+}
+
+function exportJSON() {
+  autoSave();
+  const blob = new Blob([JSON.stringify(weekData, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pointage_hermine_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('⬇ Export JSON téléchargé');
+}
+
+function importJSON(ev) {
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      // merge
+      Object.assign(weekData, imported);
+      localStorage.setItem('pointage_hermine', JSON.stringify(weekData));
+      render();
+      toast('⬆ Import JSON réussi');
+    } catch {
+      toast('❌ Fichier JSON invalide');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function exportPDF() {
+  autoSave();
+  window.print();
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAV SEMAINE
+// ═══════════════════════════════════════════════════════════
+document.getElementById('prevWeek').onclick = () => {
+  autoSave();
+  currentMonday = new Date(currentMonday);
+  currentMonday.setDate(currentMonday.getDate() - 7);
+  render();
+};
+document.getElementById('nextWeek').onclick = () => {
+  autoSave();
+  currentMonday = new Date(currentMonday);
+  currentMonday.setDate(currentMonday.getDate() + 7);
+  render();
+};
+document.getElementById('todayBtn').onclick = () => {
+  autoSave();
+  currentMonday = getThisMonday();
+  render();
+};
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+(function init() {
+  const saved = localStorage.getItem('pointage_hermine');
+  if(saved) {
+    try { weekData = JSON.parse(saved); } catch{}
+  }
+  render();
+})();
+</script>
+</body>
+</html>
