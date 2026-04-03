@@ -405,7 +405,7 @@
 <header>
   <div class="logo-block">
     <h1>Pointage <span>Hermine</span></h1>
-    <div class="ver">v1.7.0 — Calcul heures 34,5h/sem.</div>
+    <div class="ver">v1.8.0 — Calcul heures 34,5h/sem.</div>
   </div>
   <div class="week-nav">
     <button id="prevWeek" title="Semaine précédente">‹</button>
@@ -453,10 +453,10 @@
           <input type="text" id="rq-input" placeholder="0:00" value=""
             oninput="updateReliquatInline(this.value)"
             title="Saisir un reliquat H:MM, ex: 1:30">
-          <label class="day-toggle" style="cursor:pointer" onclick="toggleReliquatActive()">
+          <div class="day-toggle" style="cursor:pointer" onclick="toggleReliquatActive()">
             <div class="toggle-switch" id="rq-toggle"></div>
             <span id="rq-toggle-label" style="font-size:.72rem;color:var(--muted)">Inactif</span>
-          </label>
+          </div>
         </div>
         <div class="rq-hint" style="margin-top:4px;font-size:.68rem;color:var(--muted);font-family:var(--mono)">format H:MM · activer pour intégrer</div>
       </div>
@@ -781,10 +781,10 @@ function render() {
           <span style="color:var(--muted);font-weight:400;font-size:.8rem">${d.getDate()} ${MONTHS[d.getMonth()]}</span>
           ${badges.join('')}
         </div>
-        <label class="day-toggle" onclick="toggleDay('${wk}','${dk}')">
+        <div class="day-toggle" onclick="toggleDay('${wk}','${dk}')">
           <div class="toggle-switch ${dd.active ? 'on' : ''}"></div>
           <span>${dd.active ? 'Travaillé' : 'Repos'}</span>
-        </label>
+        </div>
       </div>
       ${holidayMsg}
       ${dd.active ? `
