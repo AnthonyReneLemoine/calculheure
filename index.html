@@ -396,10 +396,81 @@
   .reliquat-inline .toggle-switch { flex-shrink: 0; }
 
   @media print {
-    body { background: #fff; color: #111; padding: 0; }
-    .toolbar, .week-nav, .no-print { display: none !important; }
-    .day-card { break-inside: avoid; border-color: #ccc; }
-    .summary-card { border-color: #ccc; }
+    @page { size: A4 landscape; margin: 7mm; }
+
+    html { zoom: 0.62; }
+
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body { background: #fff !important; color: #111 !important; padding: 0 !important; margin: 0 !important; }
+
+    /* Masquer les éléments interactifs */
+    .toolbar, .week-nav, .no-print,
+    .add-slot-btn, .slot-del,
+    .legend, .progress-bar-wrap, .rq-hint { display: none !important; }
+
+    /* Header compact */
+    header { margin-bottom: 8px !important; }
+    .logo-block h1 { font-size: 1rem !important; }
+    .logo-block .ver { font-size: 0.6rem !important; }
+
+    /* Grille 7 colonnes */
+    .days-grid {
+      grid-template-columns: repeat(7, 1fr) !important;
+      gap: 6px !important;
+      margin-bottom: 8px !important;
+    }
+
+    /* Cartes compactes */
+    .day-card {
+      border: 1px solid #ccc !important;
+      border-radius: 6px !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      opacity: 1 !important;
+    }
+    .day-header { padding: 5px 7px !important; }
+    .day-name { font-size: 0.75rem !important; }
+    .badge { font-size: 0.5rem !important; padding: 1px 4px !important; }
+    .day-body { padding: 5px 7px !important; }
+    .slot-row { gap: 3px !important; grid-template-columns: 1fr 1fr auto !important; }
+    .slot-row input[type=time] {
+      font-size: 0.68rem !important;
+      padding: 3px 4px !important;
+      background: #f5f5f5 !important;
+      color: #111 !important;
+      border: 1px solid #ccc !important;
+    }
+    .slot-info { font-size: 0.58rem !important; }
+    .day-footer { padding: 4px 7px !important; font-size: 0.62rem !important; gap: 5px !important; }
+
+    /* Récap compact */
+    .summary-card {
+      border: 1px solid #ccc !important;
+      border-radius: 6px !important;
+      padding: 8px 12px !important;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .summary-card h2 { font-size: 0.62rem !important; margin-bottom: 8px !important; }
+    .summary-grid { gap: 8px !important; }
+    .stat-label { font-size: 0.58rem !important; }
+    .stat-value { font-size: 1.1rem !important; }
+    .stat-sub { font-size: 0.52rem !important; }
+    #rq-input {
+      font-size: 0.68rem !important;
+      padding: 2px 4px !important;
+      background: #f5f5f5 !important;
+      color: #111 !important;
+      border: 1px solid #ccc !important;
+    }
+    .day-toggle { font-size: 0.65rem !important; }
+    .toggle-switch { width: 22px !important; height: 12px !important; }
+    .toggle-switch::after { width: 8px !important; height: 8px !important; }
+    .toggle-switch.on::after { left: 12px !important; }
   }
 </style>
 </head>
