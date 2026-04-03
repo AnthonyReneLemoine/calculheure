@@ -336,36 +336,6 @@
   }
   .legend-item { display:flex;align-items:center;gap:5px; }
 
-  /* NOTE */
-  .note-area {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
-  }
-  .note-area h2 {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .note-area textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    resize: vertical;
-    min-height: 60px;
-    outline: none;
-  }
-  .note-area textarea:focus { border-color: var(--accent); }
 
   /* TOAST */
   #toast {
@@ -435,7 +405,7 @@
 <header>
   <div class="logo-block">
     <h1>Pointage <span>Hermine</span></h1>
-    <div class="ver">v1.5.0 — Calcul heures 34,5h/sem.</div>
+    <div class="ver">v1.7.0 — Calcul heures 34,5h/sem.</div>
   </div>
   <div class="week-nav">
     <button id="prevWeek" title="Semaine précédente">‹</button>
@@ -519,10 +489,7 @@
   </div>
 </div>
 
-<div class="note-area">
-  <h2>Notes de la semaine</h2>
-  <textarea id="weekNote" placeholder="Observations, congés, absences…" oninput="autoSave()"></textarea>
-</div>
+
 
 <div id="toast"></div>
 
@@ -839,8 +806,6 @@ function render() {
     grid.appendChild(card);
   });
 
-  // note
-  document.getElementById('weekNote').value = wd.note || '';
 
   // summary
   const reliquatMin = getActiveReliquatMin();
@@ -873,8 +838,8 @@ function renderSlot(wk, dk, si, slot, isSunday, isHoliday) {
   }
   return `
     <div class="slot-row">
-      <input type="time" value="${slot.start||''}" oninput="updateSlot('${wk}','${dk}',${si},'start',this.value)" placeholder="Début">
-      <input type="time" value="${slot.end||''}" oninput="updateSlot('${wk}','${dk}',${si},'end',this.value)" placeholder="Fin">
+      <input type="time" step="900" value="${slot.start||''}" oninput="updateSlot('${wk}','${dk}',${si},'start',this.value)" placeholder="Début">
+      <input type="time" step="900" value="${slot.end||''}" oninput="updateSlot('${wk}','${dk}',${si},'end',this.value)" placeholder="Fin">
       <span class="slot-info">${info}</span>
       <button class="slot-del" onclick="removeSlot('${wk}','${dk}',${si})" title="Supprimer">✕</button>
     </div>`;
