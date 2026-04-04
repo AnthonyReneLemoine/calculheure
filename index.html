@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pointage Hermine – Calcul Heures</title>
+<title>Heures Anthony – Calcul Heures</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -407,7 +407,7 @@
 
 <header>
   <div class="logo-block">
-    <h1>Pointage <span>Hermine</span></h1>
+    <h1>Heures <span>Anthony</span></h1>
     <div class="ver">v1.9.0 — Calcul heures 34,5h/sem.</div>
   </div>
   <div class="week-nav">
@@ -500,16 +500,29 @@
 // ═══════════════════════════════════════════════════════════
 // RELIQUAT INLINE
 // ═══════════════════════════════════════════════════════════
-let reliquatState = { raw: '', minutes: 0, active: false };
+let reliquatByWeek = {}; // { [weekKey]: { raw, minutes, active } }
+
+function getReliquat(wk) {
+  if(!reliquatByWeek[wk]) reliquatByWeek[wk] = { raw: '', minutes: 0, active: false };
+  return reliquatByWeek[wk];
+}
 
 function loadReliquats() {
   try {
     const s = localStorage.getItem('pointage_hermine_reliquats');
-    if(s) reliquatState = JSON.parse(s);
+    if(s) {
+      const parsed = JSON.parse(s);
+      // Migration ancien format (objet unique) → nouveau format par semaine
+      if('raw' in parsed || 'minutes' in parsed) {
+        reliquatByWeek[weekKey(currentMonday)] = parsed;
+      } else {
+        reliquatByWeek = parsed;
+      }
+    }
   } catch{}
 }
 function saveReliquats() {
-  localStorage.setItem('pointage_hermine_reliquats', JSON.stringify(reliquatState));
+  localStorage.setItem('pointage_hermine_reliquats', JSON.stringify(reliquatByWeek));
 }
 
 function parseReliquatInput(val) {
@@ -526,36 +539,40 @@ function parseReliquatInput(val) {
 }
 
 function updateReliquatInline(val) {
-  reliquatState.raw = val;
-  reliquatState.minutes = parseReliquatInput(val);
+  const rq = getReliquat(weekKey(currentMonday));
+  rq.raw = val;
+  rq.minutes = parseReliquatInput(val);
   saveReliquats();
   renderReliquatUI();
   render();
 }
 
 function toggleReliquatActive() {
-  reliquatState.active = !reliquatState.active;
+  const rq = getReliquat(weekKey(currentMonday));
+  rq.active = !rq.active;
   saveReliquats();
   renderReliquatUI();
   render();
 }
 
 function getActiveReliquatMin() {
-  return reliquatState.active ? (reliquatState.minutes||0) : 0;
+  const rq = getReliquat(weekKey(currentMonday));
+  return rq.active ? (rq.minutes||0) : 0;
 }
 
 function renderReliquatUI() {
+  const rq = getReliquat(weekKey(currentMonday));
   const inp = document.getElementById('rq-input');
   const tog = document.getElementById('rq-toggle');
   const lbl = document.getElementById('rq-toggle-label');
   if(!inp) return;
-  inp.value = reliquatState.raw || '';
+  inp.value = rq.raw || '';
   if(tog) {
-    tog.className = 'toggle-switch' + (reliquatState.active ? ' on' : '');
+    tog.className = 'toggle-switch' + (rq.active ? ' on' : '');
   }
   if(lbl) {
-    lbl.textContent = reliquatState.active ? 'Intégré' : 'Inactif';
-    lbl.style.color = reliquatState.active ? 'var(--green)' : 'var(--muted)';
+    lbl.textContent = rq.active ? 'Intégré' : 'Inactif';
+    lbl.style.color = rq.active ? 'var(--green)' : 'var(--muted)';
   }
 }
 
@@ -921,11 +938,11 @@ function clearWeek() {
 
 function exportJSON() {
   autoSave();
-  const payload = { weekData, reliquatState };
+  const payload = { weekData, reliquatByWeek };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `pointageHermine_${weekKey(currentMonday)}.json`;
+  a.download = `heuresAnthony_${weekKey(currentMonday)}.json`;
   a.click();
   toast('⬇ Export JSON téléchargé');
 }
@@ -939,7 +956,8 @@ function importJSON(ev) {
       const imported = JSON.parse(e.target.result);
       if(imported.weekData) {
         Object.assign(weekData, imported.weekData);
-        if(imported.reliquatState) reliquatState = imported.reliquatState;
+        if(imported.reliquatByWeek) Object.assign(reliquatByWeek, imported.reliquatByWeek);
+        else if(imported.reliquatState) reliquatByWeek[weekKey(currentMonday)] = imported.reliquatState;
       } else {
         // ancien format (weekData seul)
         Object.assign(weekData, imported);
@@ -969,6 +987,41 @@ function toast(msg) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// CALCUL SOLDE SEMAINE (pour report reliquat)
+// ═══════════════════════════════════════════════════════════
+function calcWeekBalance(monday) {
+  const days = getWeekDays(monday);
+  const wk = weekKey(monday);
+  const holidays = {
+    ...getFrenchHolidays(monday.getFullYear()),
+    ...getFrenchHolidays(monday.getFullYear()+1),
+  };
+  const wd = weekData[wk];
+  if(!wd) return 0;
+  const HOLIDAY_CREDIT_MIN = 7 * 60;
+  let totalCounted = 0;
+  days.forEach((d, idx) => {
+    const dk = dateKey(d);
+    const isSunday = idx === 6;
+    const isWeekday = idx <= 4;
+    const isHoliday = !!holidays[dk];
+    const isWeekdayHoliday = isHoliday && isWeekday;
+    const dd = wd.days && wd.days[dk];
+    if(!dd) { if(isWeekdayHoliday) totalCounted += HOLIDAY_CREDIT_MIN; return; }
+    let dayCounted = 0;
+    dd.slots.forEach(slot => {
+      const r = calcSlot(slot.start, slot.end, isSunday, isHoliday);
+      if(r) dayCounted += r.countedMin;
+    });
+    if(isWeekdayHoliday && !dd.active) dayCounted += HOLIDAY_CREDIT_MIN;
+    totalCounted += dayCounted;
+  });
+  const rq = getReliquat(wk);
+  const reliquatMin = rq.active ? (rq.minutes||0) : 0;
+  return Math.round(totalCounted) + reliquatMin - QUOTA * 60;
+}
+
+// ═══════════════════════════════════════════════════════════
 // NAV SEMAINE
 // ═══════════════════════════════════════════════════════════
 document.getElementById('prevWeek').onclick = () => {
@@ -979,8 +1032,21 @@ document.getElementById('prevWeek').onclick = () => {
 };
 document.getElementById('nextWeek').onclick = () => {
   autoSave();
+  const balance = calcWeekBalance(currentMonday);
   currentMonday = new Date(currentMonday);
   currentMonday.setDate(currentMonday.getDate() + 7);
+  const nextWk = weekKey(currentMonday);
+  const nextRq = getReliquat(nextWk);
+  // Reporter le solde uniquement si le champ reliquat suivant est vide
+  if(!nextRq.raw && balance !== 0) {
+    const absMin = Math.abs(balance);
+    const h = Math.floor(absMin / 60);
+    const m = absMin % 60;
+    nextRq.raw = `${h}:${String(m).padStart(2,'0')}`;
+    nextRq.minutes = absMin;
+    nextRq.active = balance > 0;
+    saveReliquats();
+  }
   render();
 };
 document.getElementById('todayBtn').onclick = () => {
